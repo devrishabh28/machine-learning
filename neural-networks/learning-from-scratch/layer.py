@@ -12,6 +12,8 @@ class LayerDense:
 
     #  Forward pass
     def forward(self, inputs):
+        #  Remember the input values
+        self.inputs = inputs
         #  Calculate the output values from inputs, weights and biases.
         self.output = np.dot(inputs, self.weights) + self.biases
         return self.output
@@ -20,7 +22,7 @@ class LayerDense:
     def backward(self, dvalues):
         #  Gradients on parameters
         self.dweights = np.dot(self.inputs.T, dvalues)
-        self.dbaises = np.sum(dvalues, axis=1, keepdims=True)
+        self.dbaises = np.sum(dvalues, axis=0, keepdims=True)
 
         #  Gradient on values
         self.dinputs = np.dot(dvalues, self.weights.T)
