@@ -22,7 +22,7 @@ class LayerDense:
     def backward(self, dvalues):
         #  Gradients on parameters
         self.dweights = np.dot(self.inputs.T, dvalues)
-        self.dbaises = np.sum(dvalues, axis=0, keepdims=True)
+        self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
 
         #  Gradient on values
         self.dinputs = np.dot(dvalues, self.weights.T)
