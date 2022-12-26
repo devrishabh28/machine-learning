@@ -21,7 +21,7 @@ dense2 = layer.LayerDense(64, 3)
 loss_activation = af.SoftmaxClassifier()
 
 #  Create optimizer
-optimizer = optimizers.StochasticGradientDescent(learning_rate=1)
+optimizer = optimizers.StochasticGradientDescent(decay=1e-3)
 
 #  Train in loop
 for epoch in range(10001):
@@ -50,7 +50,7 @@ for epoch in range(10001):
 
     if not epoch % 100:
         print(
-            'epoch: {}, acc: {}, loss: {}'.format(epoch, accuracy, loss)
+            f'epoch: {epoch}, acc: {accuracy:.3f}, loss: {loss:.2f}, lr: {optimizer.current_learning_rate}'
         )
 
     #  Back Propagation
@@ -60,5 +60,4 @@ for epoch in range(10001):
     dense1.backward(activation1.dinputs)
 
     #  Update weights and biases
-    optimizer.updateParameters(dense1)
-    optimizer.updateParameters(dense2)
+    optimizer.updateParameters([dense1, dense2])

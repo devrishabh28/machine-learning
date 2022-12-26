@@ -2,9 +2,8 @@
 import numpy as np
 from loss_functions import CategoricalCrossEntropyLoss
 
+
 #  Step Activation
-
-
 class ActivationStep:
     #  Forward Pass
     def forward(self, inputs):
