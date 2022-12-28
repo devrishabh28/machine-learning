@@ -21,7 +21,7 @@ dense2 = layer.LayerDense(64, 3)
 loss_activation = af.SoftmaxClassifier()
 
 #  Create optimizer
-optimizer = optimizers.StochasticGradientDescent(decay=1e-3)
+optimizer = optimizers.StochasticGradientDescent(decay=1e-3, momentum=0.9)
 
 #  Train in loop
 for epoch in range(10001):
