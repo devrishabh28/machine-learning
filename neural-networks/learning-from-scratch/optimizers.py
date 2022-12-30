@@ -142,3 +142,69 @@ class RootMeanSquarePropagation:
 
         #  Post-Update Parameters
         self.iterations += 1
+
+
+#  Adaptive Momentum Optimizer (Adam)
+class Adam:
+
+    #  Initialize optimizer
+    def __init__(self, learning_rate=0.001, decay=0., epsilon=1e-7, beta=0.9, rho=0.999) -> None:
+        self.learning_rate = learning_rate
+        self.current_learning_rate = learning_rate
+        self.decay = decay
+        self.iterations = 0
+        self.epsilon = epsilon
+        self.beta = beta
+        self.rho = rho
+
+    #  Update parameters
+    def updateParameters(self, layers):
+
+        #  Pre-Update Parameters
+        if self.decay:
+            self.current_learning_rate = self.learning_rate / \
+                (1 + self.decay * self.iterations)
+
+        #  Update Parameters
+        for layer in layers:
+            #  If layer does not contain cache arrays,
+            #  create them filled with zeroes.
+            if not hasattr(layer, 'weight_cache'):
+                layer.weight_momentums = np.zeros_like(layer.weights)
+                layer.weight_cache = np.zeros_like(layer.weights)
+                layer.bias_momentums = np.zeros_like(layer.biases)
+                layer.bias_cache = np.zeros_like(layer.biases)
+
+            #  Update momentum with current gradients
+            layer.weight_momentums = self.beta * \
+                layer.weight_momentums + (1 - self.beta) * layer.dweights
+            layer.bias_momentums = self.beta * \
+                layer.bias_momentums + (1 - self.beta) * layer.dbiases
+
+            #  Get corrected momentums
+            weight_momentums_corrected = layer.weight_momentums / \
+                (1 - self.beta ** (self.iterations + 1))
+            bias_momentums_corrected = layer.bias_momentums / \
+                (1 - self.beta ** (self.iterations + 1))
+
+            #  Update cache with squared current gradients
+            layer.weight_cache = self.rho * layer.weight_cache + \
+                (1 - self.rho) * layer.dweights ** 2
+            layer.bias_cache = self.rho * layer.bias_cache + \
+                (1 - self.rho) * layer.dbiases ** 2
+
+            #  Get corrected cache
+            weight_cache_corrected = layer.weight_cache / \
+                (1 - self.rho ** (self.iterations + 1))
+            bias_cache_corrected = layer.bias_cache / \
+                (1 - self.rho ** (self.iterations + 1))
+
+            #  SGD with momentum parameter update,
+            #  normalized using square rooted cache
+            layer.weights += -self.current_learning_rate * weight_momentums_corrected / \
+                (np.sqrt(weight_cache_corrected) + self.epsilon)
+            layer.biases += -self.current_learning_rate * bias_momentums_corrected / \
+                (np.sqrt(bias_cache_corrected) + self.epsilon)
+
+        #  Post-Update Paramters
+        self.iterations += 1
