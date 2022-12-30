@@ -21,7 +21,8 @@ dense2 = layer.LayerDense(64, 3)
 loss_activation = af.SoftmaxClassifier()
 
 #  Create optimizer
-optimizer = optimizers.RootMeanSquarePropagation(decay=1e-4)
+optimizer = optimizers.RootMeanSquarePropagation(
+    learning_rate=0.02, decay=1e-5, rho=0.999)
 
 #  Train in loop
 for epoch in range(10001):
