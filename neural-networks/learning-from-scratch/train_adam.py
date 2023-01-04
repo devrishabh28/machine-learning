@@ -33,7 +33,7 @@ for epoch in range(10001):
     #  takes the output of the first dense layer as inputs.
     activation1.forward(dense1.output)
 
-    #  Perform a forward pass throught the second dense layer
+    #  Perform a forward pass through the second dense layer
     #  takes the output of the activation function of the first layer as inputs.
     dense2.forward(activation1.output)
 
@@ -42,7 +42,7 @@ for epoch in range(10001):
     loss = loss_activation.forward(dense2.output, y)
 
     #  Calcuate accuracy from the output of activation2 and targets
-    #  calcualte values along first axis
+    #  calculate values along first axis
     predictions = np.argmax(loss_activation.output, axis=1)
     if len(y.shape) == 2:
         y = np.argmax(y, axis=1)
