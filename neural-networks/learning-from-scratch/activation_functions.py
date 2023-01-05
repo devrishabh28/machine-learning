@@ -26,6 +26,12 @@ class ActivationSigmoid:
         self.output = 1/(1 + np.exp(-inputs))
         return self.output
 
+    #  Backward Pass
+    def backward(self, dvalues):
+        #  Derivative - calculates from output of the sigmoid function.
+        self.dinputs = dvalues * (1 - self.output) * self.output
+        return self.dinputs
+
 
 #  ReLU Activation
 class ActivationReLU:

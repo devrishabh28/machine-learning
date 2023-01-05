@@ -55,7 +55,7 @@ for epoch in range(10001):
     #  Calcuate overall loss
     loss = data_loss + regularization_loss
 
-    #  Calculatioin accuracy from the output of activation2 and targets
+    #  Calculate accuracy from the output of activation2 and targets
     #  calculate values along first axis
     predictions = np.argmax(loss_activation.output, axis=1)
     if len(y_train.shape) == 2:
@@ -101,7 +101,7 @@ dense2.forward(activation1.output)
 #  takes the output of the second dense layer as inputs.
 loss = loss_activation.forward(dense2.output, y_test)
 
-#  Calculatioin accuracy from the output of activation2 and targets
+#  Calculate accuracy from the output of activation2 and targets
 #  calculate values along first axis
 predictions = np.argmax(loss_activation.output, axis=1)
 if len(y_test.shape) == 2:
