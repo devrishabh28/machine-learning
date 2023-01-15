@@ -33,6 +33,9 @@ loss_function = lf.BinaryCrossEntropyLoss()
 #  Create optimizer
 optimizer = optimizers.Adam(decay=5e-7)
 
+#  Set trainable layers for regularization.
+loss_function.remember_trainable_layers([dense1, dense2])
+
 #  Train in loop
 for epoch in range(10001):
     #  Perform a forward pass of the training data through this layer.
@@ -52,11 +55,8 @@ for epoch in range(10001):
 
     #  Perform a forward pass through activation/loss function
     #  takes the output of the second dense layer as inputs.
-    data_loss = loss_function.calculate(activation2.output, y_train)
-
-    #  Calculate regularization penalty
-    regularization_loss = loss_function.regularization_loss(
-        dense1) + loss_function.regularization_loss(dense2)
+    data_loss, regularization_loss = loss_function.calculate(
+        activation2.output, y_train, include_regularization=True)
 
     #  Calcuate overall loss
     loss = data_loss + regularization_loss
@@ -112,11 +112,8 @@ activation2.forward(dense2.output)
 
 #  Perform a forward pass through activation/loss function
 #  takes the output of the second dense layer as inputs.
-data_loss = loss_function.calculate(activation2.output, y_test)
-
-#  Calculate regularization penalty
-regularization_loss = loss_function.regularization_loss(
-    dense1) + loss_function.regularization_loss(dense2)
+data_loss, regularization_loss = loss_function.calculate(
+    activation2.output, y_test, include_regularization=True)
 
 #  Calcuate overall loss
 loss = data_loss + regularization_loss

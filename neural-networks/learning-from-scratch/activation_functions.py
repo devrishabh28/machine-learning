@@ -6,7 +6,7 @@ from loss_functions import CategoricalCrossEntropyLoss
 #  Step Activation
 class ActivationStep:
     #  Forward Pass
-    def forward(self, inputs):
+    def forward(self, inputs, training=False):
         self.output = np.heaviside(inputs, 1)
         return self.output
 
@@ -14,7 +14,7 @@ class ActivationStep:
 #  Linear Activation
 class ActivationLinear:
     #  Forward Pass
-    def forward(self, inputs):
+    def forward(self, inputs, training=False):
         self.inputs = inputs
         self.output = inputs
         return self.output
@@ -23,11 +23,15 @@ class ActivationLinear:
     def backward(self, dvalues):
         self.dinputs = dvalues.copy()
 
+    #  Calcuate predictions for output
+    def predictions(slef, outputs):
+        return outputs
+
 
 #  Sigmoid Activation
 class ActivationSigmoid:
     #  Forward Pass
-    def forward(self, inputs):
+    def forward(self, inputs, training=False):
         self.output = 1/(1 + np.exp(-inputs))
         return self.output
 
@@ -36,11 +40,15 @@ class ActivationSigmoid:
         #  Derivative - calculates from output of the sigmoid function.
         self.dinputs = dvalues * (1 - self.output) * self.output
 
+    # Calculate predictions for outputs
+    def predictions(self, outputs):
+        return (outputs > 0.5) * 1
+
 
 #  ReLU Activation
 class ActivationReLU:
     #  Forward Pass
-    def forward(self, inputs):
+    def forward(self, inputs, training=False):
         self.output = np.maximum(0, inputs)
         return self.output
 
@@ -49,11 +57,15 @@ class ActivationReLU:
         self.dinputs = dvalues.copy()
         self.dinputs[self.output <= 0] = 0
 
+    #  Calcuate predictions for output
+    def predictions(slef, outputs):
+        return outputs
+
 
 #  Softmax Activation
 class ActivationSoftmax:
     #  Forward Pass
-    def forward(self, inputs):
+    def forward(self, inputs, training=False):
         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
         self.output = probabilities
@@ -77,6 +89,10 @@ class ActivationSoftmax:
             #  and add it to the array of sample gradients.
             self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
 
+    # Calculate predictions for outputs
+    def predictions(self, outputs):
+        return np.argmax(outputs, axis=1)
+
 
 #  Softmax Classifier - combined Softmax ACtivation
 #  and Categorical Cross-Entropy Loss for faster backward step.
@@ -88,7 +104,7 @@ class SoftmaxClassifier:
         self.loss = CategoricalCrossEntropyLoss()
 
     #  Forward Pass
-    def forward(self, inputs, y_true):
+    def forward(self, inputs, y_true, include_regularization=False, training=False):
         #  Output layer's activation function.
         self.activation.forward(inputs)
 
@@ -96,7 +112,7 @@ class SoftmaxClassifier:
         self.output = self.activation.output
 
         #  Calculate and return loss value.
-        return self.loss.calculate(self.output, y_true)
+        return self.loss.calculate(self.output, y_true, include_regularization=include_regularization)
 
     #  Backward Pass
     def backward(self, dvalues, y_true):

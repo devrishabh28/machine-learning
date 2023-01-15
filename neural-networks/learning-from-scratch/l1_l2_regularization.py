@@ -24,6 +24,9 @@ loss_activation = af.SoftmaxClassifier()
 #  Create optimizer
 optimizer = optimizers.Adam(learning_rate=0.03, decay=5e-7)
 
+#  Set trainable layers for regularization.
+loss_activation.loss.remember_trainable_layers([dense1, dense2])
+
 #  Train in loop
 for epoch in range(10001):
 
@@ -40,11 +43,8 @@ for epoch in range(10001):
 
     #  Perform a forward pass through activation/loss function
     #  takes the output of the second dense layer as inputs.
-    data_loss = loss_activation.forward(dense2.output, y_train)
-
-    #  Calculate regularization penalty
-    regularization_loss = loss_activation.loss.regularization_loss(
-        dense1) + loss_activation.loss.regularization_loss(dense2)
+    data_loss, regularization_loss = loss_activation.forward(
+        dense2.output, y_train, include_regularization=True)
 
     #  Calcuate overall loss
     loss = data_loss + regularization_loss

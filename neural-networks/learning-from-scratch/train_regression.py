@@ -11,6 +11,9 @@ import optimizers
 #  Create dataset
 X_train, y_train = sine_data()
 
+#  Ceating test dataset
+X_test, y_test = sine_data()
+
 #  Create Dense Layer with 1 input feature and 64 output values
 dense1 = layer.LayerDense(1, 64)
 
@@ -35,11 +38,15 @@ loss_function = lf.MeanSquaredErrorLoss()
 #  Create optimizer
 optimizer = optimizers.Adam(learning_rate=0.004, decay=1e-4)
 
+#  Set trainable layers for regularization.
+loss_function.remember_trainable_layers([dense1, dense2])
+
 #  Accuracy precision for accuracy calculation
 accuracy_precision = np.std(y_train) / 250
 
 #  Train in loop
 for epoch in range(10001):
+    plt.clf()
 
     #  Perform a forward pass of the training data through thus layer.
     dense1.forward(X_train)
@@ -64,12 +71,9 @@ for epoch in range(10001):
     #  takes the output of the third dense layer here.
     activation3.forward(dense3.output)
 
-    #  Calculate the data loss
-    data_loss = loss_function.calculate(activation3.output, y_train)
-
-    #  Calculate regularization penalty
-    regularization_loss = loss_function.regularization_loss(
-        dense1) + loss_function.regularization_loss(dense2)
+    #  Calculate the data loss and regularized loss
+    data_loss, regularization_loss = loss_function.calculate(
+        activation3.output, y_train, include_regularization=True)
 
     #  Calculate overall loss
     loss = data_loss + regularization_loss
@@ -86,6 +90,11 @@ for epoch in range(10001):
               f'reg_loss: {regularization_loss:.3f}), ' +
               f'lr: {optimizer.current_learning_rate}')
 
+    if not epoch % 20:
+        plt.plot(X_test, y_test, linewidth=2)
+        plt.plot(X_test, activation3.output)
+        plt.pause(0.0001)
+
     #  Backward Pass
     loss_function.backward(activation3.output, y_train)
     activation3.backward(loss_function.dinputs)
@@ -97,9 +106,6 @@ for epoch in range(10001):
 
     #  Update weights and biases.
     optimizer.updateParameters([dense1, dense2])
-
-#  Ceating test dataset
-X_test, y_test = sine_data()
 
 #  Forward pass
 dense1.forward(X_test)
