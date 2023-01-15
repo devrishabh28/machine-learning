@@ -15,8 +15,13 @@ class ActivationStep:
 class ActivationLinear:
     #  Forward Pass
     def forward(self, inputs):
+        self.inputs = inputs
         self.output = inputs
         return self.output
+
+    #  Backward Pass
+    def backward(self, dvalues):
+        self.dinputs = dvalues.copy()
 
 
 #  Sigmoid Activation
@@ -30,7 +35,6 @@ class ActivationSigmoid:
     def backward(self, dvalues):
         #  Derivative - calculates from output of the sigmoid function.
         self.dinputs = dvalues * (1 - self.output) * self.output
-        return self.dinputs
 
 
 #  ReLU Activation

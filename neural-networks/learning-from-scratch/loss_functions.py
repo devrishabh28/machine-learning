@@ -133,3 +133,62 @@ class BinaryCrossEntropyLoss(Loss):
         self.dinputs = self.dinputs / samples
 
         return self.dinputs
+
+
+#  Mean Squared Error Loss (L2 Loss)
+class MeanSquaredErrorLoss(Loss):
+
+    #  Forward Pass
+    def forward(self, y_pred, y_true):
+
+        #  Calculate loss
+        sample_losses = np.mean((y_pred - y_true)**2, axis=-1)
+
+        #  Return losses
+        return sample_losses
+
+    #  Bacward pass
+    def backward(self, dvalues, y_true):
+
+        #  Number of samples
+        samples = len(dvalues)
+
+        #  Number of outputs in every sample.
+        outputs = len(dvalues[0])
+
+        #  Gradient on values
+        self.dinputs = -2 * (y_true - dvalues) / outputs
+
+        #  Normalize gradient
+        self.dinputs = self.dinputs / samples
+
+        #  Return gradient
+        return self.dinputs
+
+
+#  Mean Absolute Error Loss (L1 Loss)
+class MeanAbsoluteErrorLoss(Loss):
+
+    #  Forward Pass
+    def forward(self, y_pred, y_true):
+
+        #  Calculate Loss
+        sample_losses = np.mean(np.abs(y_true - y_pred), axis=-1)
+
+        #  Return losses
+        return sample_losses
+
+    #  Backward Pass
+    def backward(self, dvalues, y_true):
+
+        #  Number of samples
+        samples = len(dvalues)
+
+        #  Nubmer of outputs in every sample.
+        outputs = len(dvalues[0])
+
+        #  Caluclate gradient
+        self.dinputs = np.sign(y_true - dvalues) / outputs
+
+        #  Normalize gradient
+        self.dinputs = self.dinputs / samples
