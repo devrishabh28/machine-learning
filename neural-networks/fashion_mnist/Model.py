@@ -332,3 +332,37 @@ class Model:
 
         #  Return a model.
         return model
+
+    #  Predicts on the samples
+    def predict(self, X, *, batch_size=None):
+
+        #  Default value if batch size is not set.
+        prediction_steps = 1
+
+        #  Calculate the number of steps
+        if batch_size is not None:
+            prediction_steps = ceil(prediction_steps/batch_size)
+
+        #  Model outputs
+        output = []
+
+        #  Iterate over steps
+        for step in range(prediction_steps):
+
+            #  If batch size is not set -
+            #  train using one step and full dataset.
+            if batch_size is None:
+                batch_X = X
+
+            #  Otherwise slice a batch.
+            else:
+                batch_X = X[step*batch_size:(step + 1)*batch_size]
+
+            #  Perform the forward pass
+            batch_output = self.forward(batch_X)
+
+            #  Append batch prediction to the list of predictions.
+            output.append(batch_output)
+
+        #  Stack and return results
+        return np.vstack(output)
