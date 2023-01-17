@@ -48,3 +48,4 @@ model.finalize()
 #  Train the model
 model.train(X_train, y_train, validation_data=(X_test, y_test),
             epochs=10, batch_size=128, print_every=100)
+model.evaluate(X_train, y_train, batch_size=128)

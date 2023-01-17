@@ -128,19 +128,9 @@ class Model:
         #  Default value if batch size if not set.
         train_steps = 1
 
-        #  If there is validation data present.
-        if validation_data is not None:
-            validation_steps = 1
-
-            X_val, y_val = validation_data
-
         #  Calculate number of steps
         if batch_size is not None:
             train_steps = ceil(len(X) / batch_size)
-
-            #  If there is validation data present.
-            if validation_data is not None:
-                validation_steps = ceil(len(X_val) / batch_size)
 
         #  Training in loop.
         for epoch in range(1, epochs+1):
@@ -209,7 +199,20 @@ class Model:
         #  If there is validation data present.
         if validation_data is not None:
 
-            #  Reset accumulated values in loss
+            #  Evaluate the model
+            self.evaluate(*validation_data, batch_size=batch_size)
+
+    #  Evaluates the model using passed-in dataset.
+    def evaluate(self, X_val, y_val, *, batch_size=None):
+
+        #  Default value if batch size is not set.
+        validation_steps = 1
+
+        #  Calculate number of steps
+        if batch_size is not None:
+            validation_steps = ceil(len(X_val) / batch_size)
+
+        #  Reset accumulated values in loss
             #  and accuracy objects.
             self.loss.new_pass()
             self.accuracy.new_pass()
