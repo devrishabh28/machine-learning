@@ -48,4 +48,37 @@ model.finalize()
 #  Train the model
 model.train(X_train, y_train, validation_data=(X_test, y_test),
             epochs=10, batch_size=128, print_every=100)
-model.evaluate(X_train, y_train, batch_size=128)
+
+
+parameters = model.get_parameters()
+
+model.save_parameters('fashion_mnist.parms')
+
+model.save('fashion_mnist.model')
+
+# print(parameters)
+
+#  Instantiate the model
+model = Model()
+
+#  Add layers
+model.add(layer.LayerDense(X_train.shape[1], 128))
+model.add(af.ActivationReLU())
+model.add(layer.LayerDense(128, 128))
+model.add(af.ActivationReLU())
+model.add(layer.LayerDense(128, 10))
+model.add(af.ActivationSoftmax())
+
+#  Set loss, optimizer and accuracy objects
+model.set(
+    loss=lf.CategoricalCrossEntropyLoss(),
+    accuracy=AccuracyCategorical()
+)
+
+#  Finalize the model
+model.finalize()
+#  set model with parameters instead of training it
+model.set_parameters(parameters)
+
+#  Evaluate the model
+model.evaluate(X_test, y_test, batch_size=128)

@@ -4,13 +4,15 @@ import layer
 import activation_functions as af
 import loss_functions as lf
 from math import ceil
+import pickle
+import copy
 
 
 class Model:
 
-    def __init__(self, layers=[]) -> None:
+    def __init__(self) -> None:
         #  Create a list of network objects.
-        self.layers = layers
+        self.layers = []
 
         # Softmax classifier's output object
         self.softmax_classifier_output = None
@@ -20,10 +22,16 @@ class Model:
         self.layers.append(layer)
 
     #  Set loss and optimizer
-    def set(self, *, loss, optimizer, accuracy):
-        self.loss = loss
-        self.optimizer = optimizer
-        self.accuracy = accuracy
+    def set(self, *, loss=None, optimizer=None, accuracy=None):
+
+        if loss is not None:
+            self.loss = loss
+
+        if optimizer is not None:
+            self.optimizer = optimizer
+
+        if accuracy is not None:
+            self.accuracy = accuracy
 
     #  Finalize the model.
     def finalize(self):
@@ -60,7 +68,8 @@ class Model:
                 self.trainable_layers.append(self.layers[i])
 
         #  Update loss opject with trainable layers.
-        self.loss.remember_trainable_layers(self.trainable_layers)
+        if self.loss is not None:
+            self.loss.remember_trainable_layers(self.trainable_layers)
 
         #  If ouput activation is Softmax and
         #  loss function is Categorical Cross-Entropy
@@ -213,39 +222,113 @@ class Model:
             validation_steps = ceil(len(X_val) / batch_size)
 
         #  Reset accumulated values in loss
-            #  and accuracy objects.
-            self.loss.new_pass()
-            self.accuracy.new_pass()
+        #  and accuracy objects.
+        self.loss.new_pass()
+        self.accuracy.new_pass()
 
-            #  Iterate over steps
-            for step in range(validation_steps):
+        #  Iterate over steps
+        for step in range(validation_steps):
 
-                #  If batch size is not set -
-                #  train using one step and full dataset.
-                if batch_size is None:
-                    batch_X = X_val
-                    batch_y = y_val
+            #  If batch size is not set -
+            #  train using one step and full dataset.
+            if batch_size is None:
+                batch_X = X_val
+                batch_y = y_val
 
-                #  Otherwise slice a batch
-                else:
-                    batch_X = X_val[step * batch_size: (step+1) * batch_size]
-                    batch_y = y_val[step * batch_size: (step+1) * batch_size]
+            #  Otherwise slice a batch
+            else:
+                batch_X = X_val[step * batch_size: (step+1) * batch_size]
+                batch_y = y_val[step * batch_size: (step+1) * batch_size]
 
-                #  Perform forward pass
-                output = self.forward(batch_X, training=False)
+            #  Perform forward pass
+            output = self.forward(batch_X, training=False)
 
-                #  Calculate loss
-                loss = self.loss.calculate(output, batch_y)
+            #  Calculate loss
+            loss = self.loss.calculate(output, batch_y)
 
-                #  Get predictions and calculate accuracy.
-                predictions = self.output_layer_activation.predictions(output)
-                accuracy = self.accuracy.calculate(predictions, batch_y)
+            #  Get predictions and calculate accuracy.
+            predictions = self.output_layer_activation.predictions(output)
+            accuracy = self.accuracy.calculate(predictions, batch_y)
 
-            #  Get and print validation loss and accuracy.
-            validation_loss = self.loss.calculate_accumulated()
-            validation_accuracy = self.accuracy.calculate_accumulated()
+        #  Get and print validation loss and accuracy.
+        validation_loss = self.loss.calculate_accumulated()
+        validation_accuracy = self.accuracy.calculate_accumulated()
 
-            # Print a summary
-            print(f'validation, ' +
-                  f'acc: {validation_accuracy:.3f}, ' +
-                  f'loss: {validation_loss:.3f}')
+        # Print a summary
+        print(f'validation, ' +
+              f'acc: {validation_accuracy:.3f}, ' +
+              f'loss: {validation_loss:.3f}')
+
+    #  Retrieves and returns parameters of trainable layers.
+    def get_parameters(self):
+
+        #  Create a list for paramters.
+        parameters = []
+
+        #  Iterate trainable layers and get their paramters.
+        for layer in self.trainable_layers:
+            parameters.append(layer.get_parameters())
+
+        #  Return a list
+        return parameters
+
+    #  Updates the model with new paramters.
+    def set_parameters(self, parameters):
+
+        #  Iterate over the paramters and layers
+        #  and update each layer witheach set of parameters.
+        for parameter_set, layer in zip(parameters, self.trainable_layers):
+            layer.set_parameters(*parameter_set)
+
+    #  Saves the parameter to a file.
+    def save_parameters(self, path):
+
+        #  Open a file in the binar-write mode
+        #  and save parameters to it.
+        with open(path, 'wb') as f:
+            pickle.dump(self.get_parameters(), f)
+
+    #  Loads the weights and updates a model instance with them.
+    def load_paramters(self, path):
+
+        #  Open file in the binary-read mode,
+        #  load weights and update trainable layers.
+        with open(path, 'rb') as f:
+            self.set_parameters(pickle.load(f))
+
+    #  Saves the model.
+    def save(self, path):
+
+        #  Make a deep copy of current model instance.
+        model = copy.deepcopy(self)
+
+        #  Reset accumulated values in loss and accuracy objects.
+        model.loss.new_pass()
+        model.accuracy.new_pass()
+
+        #  Remove data from the input layer
+        #  and gradients from the loss object.
+        model.input_layer.__dict__.pop('output', None)
+        model.loss.__dict__.pop('dinputs', None)
+
+        #  For eah layer remove inputs, output and dinput properties.
+        for layer in model.layers:
+            for property in ['inputs', 'output', 'dinputs', 'dweights', 'dbiases']:
+                layer.__dict__.pop(property, None)
+
+        #  Open a file in the write-binary mode
+        #  and save the model.
+        with open(path, 'wb') as f:
+            pickle.dump(model, f)
+
+    #  Loads and returns a model.
+    @staticmethod
+    def load(path):
+
+        #  open file in the binar-read mode,
+        #  and load the mode.
+        with open(path, 'rb') as f:
+            model = pickle.load(f)
+
+        #  Return a model.
+        return model

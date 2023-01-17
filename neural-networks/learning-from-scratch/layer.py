@@ -55,6 +55,15 @@ class LayerDense:
 
         return self.dinputs
 
+    #  Retrieve layer parameters.
+    def get_parameters(self):
+        return self.weights, self.biases
+
+    #  Set weights and biases in a layer instance.
+    def set_parameters(self, weights, biases):
+        self.weights = weights
+        self.biases = biases
+
 
 #  Layer Dropout
 class LayerDropout:

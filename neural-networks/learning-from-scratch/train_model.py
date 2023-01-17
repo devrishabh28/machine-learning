@@ -35,4 +35,6 @@ model.finalize()
 
 #  Train the model
 model.train(X_train, y_train, validation_data=(
-    X_test, y_test), epochs=10000, print_every=100)
+    X_test, y_test), epochs=1000, print_every=100)
+
+model.save('spiral_data.model')
