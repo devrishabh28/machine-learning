@@ -1,5 +1,7 @@
 .build
 __pycache__
 fashion_mnist_images
+mnist_dataset
 *.png
+*.jpeg
 *.zip
