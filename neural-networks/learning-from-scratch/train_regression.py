@@ -44,9 +44,53 @@ loss_function.remember_trainable_layers([dense1, dense2])
 #  Accuracy precision for accuracy calculation
 accuracy_precision = np.std(y_train) / 250
 
+plt.ion()
+
+fig = plt.figure()
+ax1 = fig.add_subplot(211)
+ax2 = fig.add_subplot(223)
+ax3 = fig.add_subplot(224)
+
+# ax2.set_xlim([0, 10001])
+ax2.set_ylim([0, 1])
+
+# ax3.set_xlim([0, 10001])
+# ax3.set_ylim([0, 1])
+
+
+fig.set_facecolor('#121212')
+
+ax1.set_title('Neural Network', color='white')
+ax2.set_title('Accuracy', color='white')
+ax3.set_title('Loss Function', color='white')
+
+ax1.grid(True, color='#323232')
+ax2.grid(True, color='#323232')
+ax3.grid(True, color='#323232')
+
+ax1.set_facecolor('black')
+ax2.set_facecolor('black')
+ax3.set_facecolor('black')
+
+ax1.tick_params(axis='x', colors='white')
+ax1.tick_params(axis='y', colors='white')
+ax2.tick_params(axis='x', colors='white')
+ax2.tick_params(axis='y', colors='white')
+ax3.tick_params(axis='x', colors='white')
+ax3.tick_params(axis='y', colors='white')
+
+ax1.plot(X_test, y_test, linewidth=2)
+line, = ax1.plot(X_test, y_test*0, color='#EF6C35')
+line2, = ax2.plot(0, 0, color='#00ABAB')
+line3, = ax3.plot(0, 1, color='#FF4500')
+
+accList = []
+lossList = []
+timeList = []
+
+
 #  Train in loop
 for epoch in range(10001):
-    plt.clf()
 
     #  Perform a forward pass of the training data through thus layer.
     dense1.forward(X_train)
@@ -90,10 +134,30 @@ for epoch in range(10001):
               f'reg_loss: {regularization_loss:.3f}), ' +
               f'lr: {optimizer.current_learning_rate}')
 
-    if not epoch % 20:
-        plt.plot(X_test, y_test, linewidth=2)
-        plt.plot(X_test, activation3.output)
-        plt.pause(0.0001)
+    if not epoch % 25:
+        line.set_ydata(activation3.output)
+        plt.pause(0.001)
+
+        timeList.append(epoch)
+        accList.append(accuracy)
+        lossList.append(loss)
+
+        line2.set_xdata(timeList)
+        line2.set_ydata(accList)
+
+        line3.set_xdata(timeList)
+        line3.set_ydata(lossList)
+
+        ax2.set_title(f'Accuracy: {accuracy:.3f}')
+        ax3.set_title(f'Loss Function: {loss:.3f}')
+
+        ax2.autoscale_view()
+        ax3.autoscale_view()
+
+        ax2.relim()
+        ax3.relim()
+
+        fig.canvas.draw()
 
     #  Backward Pass
     loss_function.backward(activation3.output, y_train)
