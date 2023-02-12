@@ -47,9 +47,16 @@ accuracy_precision = np.std(y_train) / 250
 plt.ion()
 
 fig = plt.figure()
-ax1 = fig.add_subplot(211)
-ax2 = fig.add_subplot(223)
-ax3 = fig.add_subplot(224)
+
+fig.subplots_adjust(wspace=0.4, hspace=0.6)
+fig.suptitle('Regression', color='white')
+
+ax1 = fig.add_subplot(311)
+ax2 = fig.add_subplot(323)
+ax3 = fig.add_subplot(324)
+ax4 = fig.add_subplot(337)
+ax5 = fig.add_subplot(338)
+ax6 = fig.add_subplot(339)
 
 # ax2.set_xlim([0, 10001])
 ax2.set_ylim([0, 1])
@@ -60,9 +67,12 @@ ax2.set_ylim([0, 1])
 
 fig.set_facecolor('#121212')
 
-ax1.set_title('Neural Network', color='white')
-ax2.set_title('Accuracy', color='white')
-ax3.set_title('Loss Function', color='white')
+ax1.set_title('Neural Network', color='white', fontsize=8)
+ax2.set_title('Accuracy', color='white', fontsize=8)
+ax3.set_title('Loss Function', color='white', fontsize=8)
+ax4.set_title('Dense Layer 1', color='white', fontsize=8)
+ax5.set_title('Dense Layer 2', color='white', fontsize=8)
+ax6.set_title('Dense Layer 3', color='white', fontsize=8)
 
 ax1.grid(True, color='#323232')
 ax2.grid(True, color='#323232')
@@ -72,17 +82,23 @@ ax1.set_facecolor('black')
 ax2.set_facecolor('black')
 ax3.set_facecolor('black')
 
-ax1.tick_params(axis='x', colors='white')
-ax1.tick_params(axis='y', colors='white')
-ax2.tick_params(axis='x', colors='white')
-ax2.tick_params(axis='y', colors='white')
-ax3.tick_params(axis='x', colors='white')
-ax3.tick_params(axis='y', colors='white')
+ax1.tick_params(axis='x', colors='white', labelsize=8)
+ax1.tick_params(axis='y', colors='white', labelsize=8)
+ax2.tick_params(axis='x', colors='white', labelsize=8)
+ax2.tick_params(axis='y', colors='white', labelsize=8)
+ax3.tick_params(axis='x', colors='white', labelsize=8)
+ax3.tick_params(axis='y', colors='white', labelsize=8)
+
+ax4.set_axis_off()
+ax5.set_axis_off()
+ax6.set_axis_off()
 
 ax1.plot(X_test, y_test, linewidth=2)
 line, = ax1.plot(X_test, y_test*0, color='#EF6C35')
 line2, = ax2.plot(0, 0, color='#00ABAB')
 line3, = ax3.plot(0, 1, color='#FF4500')
+
+fig.tight_layout()
 
 accList = []
 lossList = []
@@ -148,14 +164,18 @@ for epoch in range(10001):
         line3.set_xdata(timeList)
         line3.set_ydata(lossList)
 
-        ax2.set_title(f'Accuracy: {accuracy:.3f}')
-        ax3.set_title(f'Loss Function: {loss:.3f}')
+        ax2.set_title(f'Accuracy: {accuracy:.3f}', fontsize=8)
+        ax3.set_title(f'Loss Function: {loss:.3f}', fontsize=8)
 
         ax2.autoscale_view()
         ax3.autoscale_view()
 
         ax2.relim()
         ax3.relim()
+
+        ax4.matshow(dense1.weights, cmap='hot')
+        ax5.matshow([np.sum(dense3.weights.T, axis=0)], cmap='hot')
+        ax6.matshow(dense3.weights.T, cmap='hot')
 
         fig.canvas.draw()
 
