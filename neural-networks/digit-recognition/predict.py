@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 #  Read an image
-image_data = cv2.imread('2.jpeg', cv2.IMREAD_GRAYSCALE)
+image_data = cv2.imread('3.jpeg', cv2.IMREAD_GRAYSCALE)
 
 #  Resize to the smae size as Fashion MNIST images.
 image_data = cv2.resize(image_data, (28, 28))
@@ -32,5 +32,5 @@ print(f'The following image is {prediction}')
 
 #  Plotting the image
 plt.imshow(cv2.cvtColor(cv2.imread(
-    '2.jpeg', cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB))
+    '3.jpeg', cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2RGB))
 plt.show()

@@ -4,9 +4,9 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 sentences = [
-    'I love Nandani',
+    'I love Machine Learning',
     'Elden Ring is my favourite game!',
-    'I love Sam'
+    'I love to play games'
 ]
 
 tokenizer = Tokenizer(num_words=100, oov_token="<OOV>")
